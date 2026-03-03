@@ -1,8 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import StockChart from './components/StockChart';
+import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Home() {
+  const { user } = useAuth();
   const [ticker, setTicker] = useState('RELIANCE.NS');
   const [period, setPeriod] = useState('1mo');
   const [predictDays, setPredictDays] = useState(7);
@@ -18,8 +22,8 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    fetchData();
-  }, [ticker, period, predictDays]);
+    if (user) fetchData();
+  }, [ticker, period, predictDays, user]);
 
   const fetchData = async () => {
     try {
@@ -43,21 +47,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="backdrop-blur-sm bg-black/20">
-        <nav className="border-b border-white/10 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <span className="text-3xl">📈</span> StockFlow
-            </h1>
-            <div className="flex gap-4">
-              <button className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition">Portfolio</button>
-              <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90 transition">Upgrade</button>
-            </div>
-          </div>
-        </nav>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="backdrop-blur-sm bg-black/20">
+          <Navbar />
 
-        <div className="max-w-7xl mx-auto p-8">
+          <div className="max-w-7xl mx-auto p-8">
           <div className="mb-8">
             <h2 className="text-4xl font-bold text-white mb-2">Market Overview</h2>
             <p className="text-gray-400">Track and predict stock performance</p>
@@ -237,8 +232,9 @@ export default function Home() {
               )}
             </>
           )}
+          </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
